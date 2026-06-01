@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            max-width: 500px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h2 { margin-top: 0; font-weight: 600; text-align: center; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #86868b;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover { background-color: #0077ed; }
+        #canvas-container {
+            margin-top: 20px;
+            max-width: 100%;
+            display: none;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Screenshot Generator</h2>
+    
+    <div class="form-group">
+        <label>TESTCODE</label>
+        <input type="text" id="testcode" value="0001-6374">
+    </div>
+    
+    <div class="form-group">
+        <label>CAS-Modus</label>
+        <select id="cas">
+            <option value="Aus">Aus</option>
+            <option value="An">An</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>DATUM</label>
+        <input type="text" id="datum" value="31.05.2026">
+    </div>
+    
+    <div class="form-group">
+        <label>DAUER</label>
+        <input type="text" id="dauer" value="00:41">
+    </div>
+    
+    <div class="form-group">
+        <label>STARTZEIT</label>
+        <input type="text" id="startzeit" value="15:20">
+    </div>
+    
+    <div class="form-group">
+        <label>ENDZEIT</label>
+        <input type="text" id="endzeit" value="15:21">
+    </div>
+    
+    <div class="form-group">
+        <label>SITZUNG ID</label>
+        <input type="text" id="sitzung" value="4CEH45">
+    </div>
+    
+    <div class="form-group">
+        <label>VERSION</label>
+        <input type="text" id="version" value="6.3.1">
+    </div>
+    
+    <button onclick="generateImage()">Bild generieren & herunterladen</button>
+</div>
+
+<div id="canvas-container">
+    <canvas id="screenshotCanvas"></canvas>
+</div>
+
+<script>
+function generateImage() {
+    const canvas = document.getElementById('screenshotCanvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    // Wichtig: background.png muss im selben Verzeichnis auf GitHub liegen!
+    img.src = 'background.png';
+    
+    img.onload = function() {
+        // Setzt die Canvas-Größe exakt auf die Maße deines Hintergrundbildes (z.B. 1322x1322)
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // 1. Hintergrund zeichnen
+        ctx.drawImage(img, 0, 0);
+        
+        // 2. Schrifteinstellungen (Verwendet System-Helvetica)
+        const fontName = '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif';
+        const xMargin = 90;
+        let currentY = 100;
+        
+        // 3. Oberer Text
+        ctx.fillStyle = '#000000';
+        ctx.font = `34px ${fontName}`;
+        ctx.fillText("Zeigen Sie bitte Ihrer Lehrkraft diesen Screenshot. Zusätzlich wurde ein", xMargin, currentY);
+        currentY += 45;
+        ctx.fillText("Screenshot unter Fotos gespeichert.", xMargin, currentY);
+        
+        currentY += 120;
+        
+        // Hilfsfunktion für die Blöcke
+        function drawBlock(label, value, yPos) {
+            ctx.fillStyle = '#7d7d7d'; // Grau für Labels
+            ctx.font = `28px ${fontName}`;
+            ctx.fillText(label, xMargin, yPos);
+            yPos += 38;
+            
+            ctx.fillStyle = '#000000'; // Schwarz für Werte
+            ctx.font = `68px ${fontName}`;
+            ctx.fillText(value, xMargin, yPos);
+            return yPos + 95;
+        }
+        
+        // Werte aus den Input-Feldern auslesen
+        const testcode = document.getElementById('testcode').value;
+        const cas = document.getElementById('cas').value;
+        const datum = document.getElementById('datum').value;
+        const dauer = document.getElementById('dauer').value;
+        const startzeit = document.getElementById('startzeit').value;
+        const endzeit = document.getElementById('endzeit').value;
+        const sitzung = document.getElementById('sitzung').value;
+        const version = document.getElementById('version').value;
+        
+        // Blöcke nacheinander zeichnen
+        currentY = drawBlock("TESTCODE:", testcode, currentY);
+        
+        // CAS-Modus (Sonderfall Blau)
+        ctx.fillStyle = '#007aff'; // iOS Blau
+        ctx.font = `42px ${fontName}`;
+        ctx.fillText(`CAS-Modus: ${cas}`, xMargin, currentY);
+        currentY += 110
+        
+        currentY = drawBlock("DATUM:", datum, currentY);
+        currentY = drawBlock("DAUER:", dauer, currentY);
+        currentY = drawBlock("STARTZEIT:", startzeit, currentY);
+        currentY = drawBlock("ENDZEIT:", endzeit, currentY);
+        currentY = drawBlock("SITZUNG ID:", sitzung, currentY);
+        
+        // Version einzeln am Ende
+        ctx.fillStyle = '#7d7d7d';
+        ctx.font = `28px ${fontName}`;
+        ctx.fillText("VERSION:", xMargin, currentY);
+        currentY += 38;
+        ctx.fillStyle = '#000000';
+        ctx.font = `68px ${fontName}`;
+        ctx.fillText(version, xMargin, currentY);
+        
+        // 4. Automatischer Download des fertigen PNGs
+        const link = document.createElement('a');
+        link.download = 'ipad_screenshot.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    };
+}
+</script>
+
+</body>
+</html>
