@@ -139,32 +139,34 @@ function generateImage() {
         // 1. Hintergrund zeichnen
         ctx.drawImage(img, 0, 0);
         
-        // 2. Originalgetreuer iOS-Schriftarten-Stack (Wichtig: kein 'bold')
+        // 2. Originaler iOS-Schriftarten-Stack
         const fontStack = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif';
         const xMargin = 90;
-        let currentY = 100;
         
-        // 3. Oberer Text (Schlank und exakt platziert)
+        // Start-Y-Koordinate für den oberen Hinweistext
+        let currentY = 110; 
+        
+        // 3. Oberer Text (Schlank und präzise platziert)
         ctx.fillStyle = '#000000';
         ctx.font = `300 34px ${fontStack}`;
         ctx.fillText("Zeigen Sie bitte Ihrer Lehrkraft diesen Screenshot. Zusätzlich wurde ein", xMargin, currentY);
-        currentY += 45;
+        currentY += 48;
         ctx.fillText("Screenshot unter Fotos gespeichert.", xMargin, currentY);
         
-        // Abstand zum ersten Block vergrößert, damit nichts überlappt
-        currentY += 150;
+        // Großzügiger Abstand nach dem Header zum ersten Label (TESTCODE:)
+        currentY += 155;
         
-        // Hilfsfunktion für die Standardblöcke mit korrigierten Abständen
+        // Hilfsfunktion für die Standardblöcke mit deutlich vergrößerten Abständen
         function drawBlock(label, value, yPos) {
             ctx.fillStyle = '#7d7d7d'; 
-            ctx.font = `400 26px ${fontStack}`; // Labels etwas feiner
+            ctx.font = `400 26px ${fontStack}`; 
             ctx.fillText(label, xMargin, yPos);
-            yPos += 45; // Mehr Platz zwischen Label und dem großen Wert
+            yPos += 45; // Platz zwischen Label und dem großen Wert
             
             ctx.fillStyle = '#000000'; 
-            ctx.font = `300 68px ${fontStack}`; // Wert schlank statt fett ('300')
+            ctx.font = `300 68px ${fontStack}`; 
             ctx.fillText(value, xMargin, yPos);
-            return yPos + 105; // Erhöhter Abstand zum nächsten Block
+            return yPos + 115; // Erhöhter Abstand zum nächsten Block (Verhindert Stau nach unten)
         }
         
         const testcode = document.getElementById('testcode').value;
@@ -183,7 +185,7 @@ function generateImage() {
         ctx.fillStyle = '#007aff'; 
         ctx.font = `400 42px ${fontStack}`;
         ctx.fillText(`CAS-Modus: ${cas}`, xMargin, currentY);
-        currentY += 130; // Ausreichend Abstand nach unten, damit "DATUM" nicht reinrutscht
+        currentY += 140; // Mehr Platz nach dem CAS-Modus
         
         currentY = drawBlock("DATUM:", datum, currentY);
         currentY = drawBlock("DAUER:", dauer, currentY);
