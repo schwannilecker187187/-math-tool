@@ -6,7 +6,7 @@
     <title>Screenshot Generator</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-color: #f5f5f7;
             color: #1d1d1f;
             margin: 0;
@@ -24,7 +24,7 @@
             width: 100%;
             box-sizing: border-box;
         }
-        h2 { margin-top: 0; font-weight: 600; text-align: center; }
+        h2 { margin-top: 0; font-weight: 500; text-align: center; }
         .form-group {
             margin-bottom: 15px;
         }
@@ -130,45 +130,43 @@ function generateImage() {
     const ctx = canvas.getContext('2d');
     const img = new Image();
     
-    // Wichtig: background.png muss im selben Verzeichnis auf GitHub liegen!
     img.src = 'background.png';
     
     img.onload = function() {
-        // Setzt die Canvas-Größe exakt auf die Maße deines Hintergrundbildes (z.B. 1322x1322)
         canvas.width = img.width;
         canvas.height = img.height;
         
         // 1. Hintergrund zeichnen
         ctx.drawImage(img, 0, 0);
         
-        // 2. Schrifteinstellungen (Verwendet System-Helvetica)
-        const fontName = '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif';
+        // 2. Originalgetreuer iOS-Schriftarten-Stack (Wichtig: kein 'bold')
+        const fontStack = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif';
         const xMargin = 90;
         let currentY = 100;
         
-        // 3. Oberer Text
+        // 3. Oberer Text (Schlank und exakt platziert)
         ctx.fillStyle = '#000000';
-        ctx.font = `34px ${fontName}`;
+        ctx.font = `300 34px ${fontStack}`;
         ctx.fillText("Zeigen Sie bitte Ihrer Lehrkraft diesen Screenshot. Zusätzlich wurde ein", xMargin, currentY);
         currentY += 45;
         ctx.fillText("Screenshot unter Fotos gespeichert.", xMargin, currentY);
         
-        currentY += 120;
+        // Abstand zum ersten Block vergrößert, damit nichts überlappt
+        currentY += 150;
         
-        // Hilfsfunktion für die Blöcke
+        // Hilfsfunktion für die Standardblöcke mit korrigierten Abständen
         function drawBlock(label, value, yPos) {
-            ctx.fillStyle = '#7d7d7d'; // Grau für Labels
-            ctx.font = `28px ${fontName}`;
+            ctx.fillStyle = '#7d7d7d'; 
+            ctx.font = `400 26px ${fontStack}`; // Labels etwas feiner
             ctx.fillText(label, xMargin, yPos);
-            yPos += 38;
+            yPos += 45; // Mehr Platz zwischen Label und dem großen Wert
             
-            ctx.fillStyle = '#000000'; // Schwarz für Werte
-            ctx.font = `68px ${fontName}`;
+            ctx.fillStyle = '#000000'; 
+            ctx.font = `300 68px ${fontStack}`; // Wert schlank statt fett ('300')
             ctx.fillText(value, xMargin, yPos);
-            return yPos + 95;
+            return yPos + 105; // Erhöhter Abstand zum nächsten Block
         }
         
-        // Werte aus den Input-Feldern auslesen
         const testcode = document.getElementById('testcode').value;
         const cas = document.getElementById('cas').value;
         const datum = document.getElementById('datum').value;
@@ -178,14 +176,14 @@ function generateImage() {
         const sitzung = document.getElementById('sitzung').value;
         const version = document.getElementById('version').value;
         
-        // Blöcke nacheinander zeichnen
+        // Blöcke zeichnen
         currentY = drawBlock("TESTCODE:", testcode, currentY);
         
-        // CAS-Modus (Sonderfall Blau)
-        ctx.fillStyle = '#007aff'; // iOS Blau
-        ctx.font = `42px ${fontName}`;
+        // CAS-Modus Zeile (Blau, schlank)
+        ctx.fillStyle = '#007aff'; 
+        ctx.font = `400 42px ${fontStack}`;
         ctx.fillText(`CAS-Modus: ${cas}`, xMargin, currentY);
-        currentY += 110
+        currentY += 130; // Ausreichend Abstand nach unten, damit "DATUM" nicht reinrutscht
         
         currentY = drawBlock("DATUM:", datum, currentY);
         currentY = drawBlock("DAUER:", dauer, currentY);
@@ -193,16 +191,16 @@ function generateImage() {
         currentY = drawBlock("ENDZEIT:", endzeit, currentY);
         currentY = drawBlock("SITZUNG ID:", sitzung, currentY);
         
-        // Version einzeln am Ende
+        // Version
         ctx.fillStyle = '#7d7d7d';
-        ctx.font = `28px ${fontName}`;
+        ctx.font = `400 26px ${fontStack}`;
         ctx.fillText("VERSION:", xMargin, currentY);
-        currentY += 38;
+        currentY += 45;
         ctx.fillStyle = '#000000';
-        ctx.font = `68px ${fontName}`;
+        ctx.font = `300 68px ${fontStack}`;
         ctx.fillText(version, xMargin, currentY);
         
-        // 4. Automatischer Download des fertigen PNGs
+        // 4. Download triggern
         const link = document.createElement('a');
         link.download = 'ipad_screenshot.png';
         link.href = canvas.toDataURL('image/png');
